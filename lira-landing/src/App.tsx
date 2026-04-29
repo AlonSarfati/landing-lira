@@ -4,6 +4,8 @@ import { Check, Eye, ShieldCheck } from "lucide-react";
 import Header from "./components/Header";
 import { AnimatedPyramid } from "./components/AnimatedPyramid";
 import type { Feature } from "./components/AnimatedPyramid";
+import { About } from "./pages/About";
+import { Contact } from "./pages/Contact";
 import logo from "./assets/lira-logo-glow.png";
 
 type Mode = "base" | "bonus" | "overtime";
@@ -158,6 +160,26 @@ export default function App() {
   };
 
   const pyramid = stepToPyramid(activeStep, selectedStrategy);
+  const isAboutPage = window.location.pathname === "/about";
+  const isContactPage = window.location.pathname === "/contact";
+
+  if (isAboutPage) {
+    return (
+      <>
+        <Header />
+        <About />
+      </>
+    );
+  }
+
+  if (isContactPage) {
+    return (
+      <>
+        <Header />
+        <Contact />
+      </>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#063443] text-white">
@@ -205,7 +227,7 @@ export default function App() {
                 See the system
               </a>
               <a
-                href="#contact"
+                href="/contact"
                 className="inline-flex items-center justify-center border border-white/15 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-[#62c7b2]/70 hover:bg-white/5"
               >
                 Request a pilot
@@ -387,10 +409,10 @@ export default function App() {
             Lira gives finance the salary intelligence layer above execution.
           </p>
           <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-            <a href="mailto:pilot@lira.finance" className="bg-[#62c7b2] px-6 py-3 text-sm font-semibold text-[#073642]">
+            <a href="/contact" className="bg-[#62c7b2] px-6 py-3 text-sm font-semibold text-[#073642]">
               Request a pilot
             </a>
-            <a href="mailto:contact@lira.finance" className="border border-white/15 px-6 py-3 text-sm font-semibold text-white">
+            <a href="/contact" className="border border-white/15 px-6 py-3 text-sm font-semibold text-white">
               Contact us
             </a>
           </div>
