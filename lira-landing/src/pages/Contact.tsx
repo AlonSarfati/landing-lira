@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import ContactForm from "../components/ContactForm";
 
 const reasons = [
   "Pilot on real salary rules",
@@ -15,8 +15,6 @@ const expectations = [
 ];
 
 export function Contact() {
-  const [submitted, setSubmitted] = useState(false);
-
   return (
     <main className="min-h-screen bg-[#063443] text-white">
       <section className="relative overflow-hidden border-b border-white/10 px-6 py-28 sm:px-8">
@@ -48,80 +46,7 @@ export function Contact() {
             </div>
           </div>
 
-          <form
-            className="border border-white/10 bg-[#052f3d] p-6 shadow-[0_26px_80px_rgba(0,0,0,0.18)]"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setSubmitted(true);
-            }}
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-2 text-sm text-[#d8f0f2]">
-                Name
-                <input
-                  required
-                  name="name"
-                  className="border border-white/10 bg-[#063443] px-4 py-3 text-white outline-none transition focus:border-[#62c7b2]"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-[#d8f0f2]">
-                Work email
-                <input
-                  required
-                  type="email"
-                  name="email"
-                  className="border border-white/10 bg-[#063443] px-4 py-3 text-white outline-none transition focus:border-[#62c7b2]"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-[#d8f0f2]">
-                Company
-                <input
-                  required
-                  name="company"
-                  className="border border-white/10 bg-[#063443] px-4 py-3 text-white outline-none transition focus:border-[#62c7b2]"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-[#d8f0f2]">
-                Team size
-                <select
-                  name="team-size"
-                  className="border border-white/10 bg-[#063443] px-4 py-3 text-white outline-none transition focus:border-[#62c7b2]"
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select range
-                  </option>
-                  <option>1-50 employees</option>
-                  <option>51-250 employees</option>
-                  <option>251-1,000 employees</option>
-                  <option>1,000+ employees</option>
-                </select>
-              </label>
-            </div>
-
-            <label className="mt-4 grid gap-2 text-sm text-[#d8f0f2]">
-              What do you want to understand before payroll?
-              <textarea
-                required
-                name="message"
-                rows={5}
-                className="resize-none border border-white/10 bg-[#063443] px-4 py-3 text-white outline-none transition focus:border-[#62c7b2]"
-              />
-            </label>
-
-            <button
-              type="submit"
-              className="mt-6 w-full bg-[#62c7b2] px-6 py-3 text-sm font-semibold text-[#073642] transition hover:bg-[#7cd6c3]"
-            >
-              Request a pilot
-            </button>
-
-            {submitted && (
-              <p className="mt-4 border border-[#62c7b2]/30 bg-[#62c7b2]/10 px-4 py-3 text-sm text-[#d8f0f2]">
-                Thanks. The contact form is ready for backend wiring; no message was sent yet.
-              </p>
-            )}
-          </form>
+          <ContactForm />
         </div>
       </section>
 
