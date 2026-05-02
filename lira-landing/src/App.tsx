@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Eye, ShieldCheck } from "lucide-react";
 import Header from "./components/Header";
@@ -107,6 +107,37 @@ function stepToPyramid(step: StepId, selectedStrategy: Strategy): PyramidState {
   };
 }
 
+function MobilePyramidStrip({
+  tall,
+  tightTop,
+  short,
+  children,
+}: {
+  tall?: boolean;
+  /** Less margin above strip (e.g. optimizer: sit closer to intro copy) */
+  tightTop?: boolean;
+  /** Shorter strip so pyramid + controls fit one viewport */
+  short?: boolean;
+  children: ReactNode;
+}) {
+  const top = tightTop ? "mt-4" : "mt-10";
+  let height: string;
+  if (short) {
+    height = "min-h-[200px] max-h-[min(260px,36svh)]";
+  } else if (tall) {
+    height = "min-h-[280px] max-h-[min(360px,50svh)]";
+  } else {
+    height = "min-h-[260px] max-h-[min(320px,46svh)]";
+  }
+  return (
+    <div
+      className={`${top} w-full shrink-0 overflow-visible rounded-sm border border-white/10 bg-[#063443]/92 p-3 shadow-[0_14px_44px_rgba(0,0,0,0.2)] lg:hidden ${height} flex flex-col`}
+    >
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
+    </div>
+  );
+}
+
 export default function App() {
   const [activeStep, setActiveStep] = useState<StepId>("problem");
   const [selectedStrategy, setSelectedStrategy] = useState(strategies[1]);
@@ -120,33 +151,53 @@ export default function App() {
   });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    const mq = window.matchMedia("(min-width: 1024px)");
+    let observer: IntersectionObserver | null = null;
 
-        const id = visible?.target.getAttribute("data-step") as StepId | null;
-        if (id) {
-          setActiveStep((current) => {
-            if (current !== id) {
-              setPulseKey((value) => value + 1);
-            }
-            return id;
-          });
-        }
-      },
-      {
-        rootMargin: "-25% 0px -35% 0px",
-        threshold: [0.25, 0.45, 0.65],
-      },
-    );
+    const attach = () => {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
 
-    Object.values(sectionRefs.current).forEach((node) => {
-      if (node) observer.observe(node);
-    });
+          const id = visible?.target.getAttribute("data-step") as StepId | null;
+          if (id) {
+            setActiveStep((current) => {
+              if (current !== id) {
+                setPulseKey((value) => value + 1);
+              }
+              return id;
+            });
+          }
+        },
+        {
+          rootMargin: "-25% 0px -35% 0px",
+          threshold: [0.25, 0.45, 0.65],
+        },
+      );
 
-    return () => observer.disconnect();
+      Object.values(sectionRefs.current).forEach((node) => {
+        if (node) observer!.observe(node);
+      });
+    };
+
+    const detach = () => {
+      observer?.disconnect();
+      observer = null;
+    };
+
+    const sync = () => {
+      detach();
+      if (mq.matches) attach();
+    };
+
+    sync();
+    mq.addEventListener("change", sync);
+    return () => {
+      mq.removeEventListener("change", sync);
+      detach();
+    };
   }, []);
 
   const setStepRef = (id: StepId) => (node: HTMLElement | null) => {
@@ -260,6 +311,16 @@ export default function App() {
                   </div>
                 ))}
               </div>
+              <MobilePyramidStrip>
+                <AnimatedPyramid
+                  compact
+                  variant="model"
+                  mode="base"
+                  delta={0}
+                  feature="blindness"
+                  pulseKey={0}
+                />
+              </MobilePyramidStrip>
             </section>
 
             <section
@@ -278,6 +339,9 @@ export default function App() {
               <p className="mt-6 max-w-lg text-lg leading-8 text-[#d8f0f2]">
                 Salary logic becomes a structured system you can see.
               </p>
+              <MobilePyramidStrip>
+                <AnimatedPyramid compact variant="model" mode="base" delta={3} feature="model" pulseKey={0} />
+              </MobilePyramidStrip>
             </section>
 
             <section
@@ -295,6 +359,9 @@ export default function App() {
                 <br />
                 Everything moves.
               </h2>
+              <MobilePyramidStrip tall>
+                <AnimatedPyramid compact variant="interactive" feature="impact" pulseKey={0} />
+              </MobilePyramidStrip>
             </section>
 
             <section
@@ -313,43 +380,57 @@ export default function App() {
               <p className="mt-6 max-w-xl text-lg leading-8 text-[#d8f0f2]">
                 Compare strategies and see their impact before committing.
               </p>
-              <div className="mt-10 grid gap-3 sm:grid-cols-2">
-                {strategies.map((strategy) => {
-                  const selected = selectedStrategy.name === strategy.name;
-                  return (
-                    <button
-                      key={strategy.name}
-                      type="button"
-                      onClick={() => chooseStrategy(strategy)}
-                      className={`relative border p-4 text-left transition ${
-                        selected
-                          ? "border-[#62c7b2] bg-[#62c7b2]/12 shadow-[0_0_34px_rgba(98,199,178,0.14)]"
-                          : "border-white/10 bg-[#063443] hover:border-[#62c7b2]/50"
-                      }`}
-                    >
-                      {strategy.recommended && (
-                        <span className="mb-4 inline-flex bg-[#62c7b2] px-2 py-1 text-xs font-semibold text-[#073642]">
-                          Recommended
-                        </span>
-                      )}
-                      <div className="text-lg font-semibold text-white">{strategy.name}</div>
-                      <div className="mt-5 grid grid-cols-3 gap-2 text-sm">
-                        <div>
-                          <div className="text-[#8dd5df]">Cost</div>
-                          <div className="mt-1 font-semibold text-white">{strategy.cost}</div>
+              <div className="max-lg:flex max-lg:flex-col max-lg:gap-2">
+                <MobilePyramidStrip tightTop short>
+                  <AnimatedPyramid
+                    compact
+                    variant="optimizer"
+                    mode={selectedStrategy.mode}
+                    delta={selectedStrategy.delta}
+                    feature="optimizer"
+                    pulseKey={pulseKey}
+                  />
+                </MobilePyramidStrip>
+                <div className="mt-3 grid grid-cols-2 gap-2 max-lg:mt-0 lg:mt-10 lg:gap-3">
+                  {strategies.map((strategy) => {
+                    const selected = selectedStrategy.name === strategy.name;
+                    return (
+                      <button
+                        key={strategy.name}
+                        type="button"
+                        onClick={() => chooseStrategy(strategy)}
+                        className={`relative touch-manipulation border text-left transition max-lg:min-h-[44px] max-lg:rounded-sm max-lg:p-2 max-lg:pt-2.5 lg:p-4 ${
+                          selected
+                            ? "border-[#62c7b2] bg-[#62c7b2]/12 shadow-[0_0_34px_rgba(98,199,178,0.14)]"
+                            : "border-white/10 bg-[#063443] hover:border-[#62c7b2]/50"
+                        }`}
+                      >
+                        {strategy.recommended && (
+                          <span className="mb-1 inline-flex bg-[#62c7b2] px-1.5 py-0.5 text-[10px] font-semibold leading-tight text-[#073642] max-lg:mb-1 lg:mb-4 lg:px-2 lg:py-1 lg:text-xs">
+                            Recommended
+                          </span>
+                        )}
+                        <div className="text-sm font-semibold leading-snug text-white max-lg:text-xs lg:text-lg">
+                          {strategy.name}
                         </div>
-                        <div>
-                          <div className="text-[#8dd5df]">Risk</div>
-                          <div className="mt-1 font-semibold text-white">{strategy.risk}</div>
+                        <div className="mt-2 grid grid-cols-3 gap-1 text-[10px] max-lg:mt-1.5 max-lg:leading-tight lg:mt-5 lg:gap-2 lg:text-sm">
+                          <div>
+                            <div className="text-[#8dd5df]">Cost</div>
+                            <div className="mt-0.5 font-semibold text-white">{strategy.cost}</div>
+                          </div>
+                          <div>
+                            <div className="text-[#8dd5df]">Risk</div>
+                            <div className="mt-0.5 font-semibold text-white">{strategy.risk}</div>
+                          </div>
+                          <div>
+                            <div className="text-[#8dd5df]">People</div>
+                            <div className="mt-0.5 font-semibold text-white">{strategy.employees}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-[#8dd5df]">People</div>
-                          <div className="mt-1 font-semibold text-white">{strategy.employees}</div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </section>
 
@@ -377,10 +458,13 @@ export default function App() {
                   );
                 })}
               </div>
+              <MobilePyramidStrip>
+                <AnimatedPyramid compact variant="model" mode="base" delta={2} feature="control" pulseKey={0} />
+              </MobilePyramidStrip>
             </section>
           </div>
 
-          <aside className="pointer-events-auto w-full self-start py-10 lg:sticky lg:top-16 lg:flex lg:min-h-[calc(100vh-4rem)] lg:items-center lg:py-0">
+          <aside className="pointer-events-auto hidden w-full self-start py-10 lg:flex lg:min-h-[calc(100vh-4rem)] lg:items-center lg:sticky lg:top-16 lg:py-0">
             <div className="w-full border border-white/10 bg-[#063443]/72 p-4 shadow-[0_26px_80px_rgba(0,0,0,0.22)] backdrop-blur">
               <div className="mb-3 flex items-center justify-between px-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#8dd5df]">
                 <span>Shared model</span>

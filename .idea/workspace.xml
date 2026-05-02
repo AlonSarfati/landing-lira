@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="02fe3948-34e8-4f17-bf62-7f2625394456" name="Changes" comment="fixing vercel redirect" />
+    <list default="true" id="02fe3948-34e8-4f17-bf62-7f2625394456" name="Changes" comment="adding contact form and email send" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,9 +31,14 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/alon3/atlas-solutions"
+    "last_opened_file_path": "C:/Users/alon3/Desktop/javaproj/landingPageLira/my-react-app/lira-landing/src/components"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\alon3\Desktop\javaproj\landingPageLira\my-react-app\lira-landing\src\components" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -66,12 +71,21 @@
       <option name="project" value="LOCAL‎" />
       <updated>1777457834156</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL‎-00003" summary="adding contact form and email send">
+      <option name="closed" value="true" />
+      <created>1777460005265</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL‎-00003" />
+      <option name="project" value="LOCAL‎" />
+      <updated>1777460005265</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="adding the landing page we have always wanted!" />
     <MESSAGE value="fixing vercel redirect" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixing vercel redirect" />
+    <MESSAGE value="adding contact form and email send" />
+    <option name="LAST_COMMIT_MESSAGE" value="adding contact form and email send" />
   </component>
 </project>
