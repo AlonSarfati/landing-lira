@@ -165,7 +165,11 @@ export default function App() {
           if (id) {
             setActiveStep((current) => {
               if (current !== id) {
-                setPulseKey((value) => value + 1);
+                const softHandoff =
+                  (current === "problem" && id === "model") || (current === "model" && id === "problem");
+                if (!softHandoff) {
+                  setPulseKey((value) => value + 1);
+                }
               }
               return id;
             });

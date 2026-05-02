@@ -167,6 +167,15 @@ export function AnimatedPyramid({
     ? salaryDelta
     : delta ?? modes.find((item) => item.id === activeMode)?.delta ?? 5;
   const pulseToken = `${ripple}-${pulseKey}-${visibleDelta}-${activeMode}`;
+  /** Avoid full remount on guided story problem→model; let opacity/labels crossfade instead. */
+  const polygonMountKey =
+    variant === "optimizer"
+      ? pulseToken
+      : variant === "interactive"
+        ? `${ripple}-${activeMode}`
+        : `${ripple}`;
+  const flowLineKey =
+    variant === "optimizer" ? `flow-${pulseToken}` : variant === "interactive" ? `flow-${ripple}-${activeMode}` : `flow-${ripple}`;
   const shouldShowDelta =
     visualFeature !== "blindness" &&
     (ripple > 0 || pulseKey > 0 || variant === "interactive" || variant === "optimizer");
@@ -339,7 +348,7 @@ export function AnimatedPyramid({
                 stroke="#9bd9dd"
                 strokeWidth="1"
                 strokeOpacity="0.45"
-                key={`flow-${pulseToken}`}
+                key={flowLineKey}
                 initial={{ pathLength: 0.1, opacity: 0.2 }}
                 animate={{ pathLength: [0.1, 1, 0.1], opacity: [0.2, 0.9, 0.2] }}
                 transition={{ duration: 1.2, ease: "easeInOut" }}
@@ -367,10 +376,16 @@ export function AnimatedPyramid({
 
               const glowFilter = isAffected && visualFeature !== "blindness" ? `url(#${glowFilterId})` : undefined;
 
+              const blindRegion = ["pension", "overtime", "bonus", "seniority"].includes(layer.id);
+              const storyBlend =
+                variant === "model" && (visualFeature === "blindness" || visualFeature === "model") && blindRegion;
+              const polyOpacityDuration = storyBlend && !reduceMotion ? 1.05 : reduceMotion ? 0.15 : 0.65;
+              const labelSwapDuration = storyBlend && !reduceMotion ? 0.95 : reduceMotion ? 0.12 : 0.48;
+
               return (
                 <g key={layer.id}>
                   <motion.polygon
-                    key={`poly-${layer.id}-${pulseToken}`}
+                    key={`poly-${layer.id}-${polygonMountKey}`}
                     points={geometry.points}
                     fill={layer.fill}
                     stroke="rgba(216,240,242,0.28)"
@@ -393,10 +408,17 @@ export function AnimatedPyramid({
                           : [0, polyYShift, 0],
                     }}
                     transition={{
-                      opacity: { duration: reduceMotion ? 0.15 : 0.65, ease: "easeInOut" },
+                      opacity: {
+                        duration: polyOpacityDuration,
+                        ease: storyBlend && !reduceMotion ? ([0.22, 1, 0.36, 1] as const) : "easeInOut",
+                      },
                       y: reduceMotion
                         ? { duration: 0 }
-                        : { duration: 0.56, delay: bottomToTopDelay, ease: "easeOut" },
+                        : {
+                            duration: storyBlend ? 0.72 : 0.56,
+                            delay: bottomToTopDelay,
+                            ease: storyBlend ? ([0.22, 1, 0.36, 1] as const) : "easeOut",
+                          },
                     }}
                   />
 
@@ -408,7 +430,10 @@ export function AnimatedPyramid({
                         textAnchor="middle"
                         className={`pointer-events-none select-none fill-white font-semibold ${compact ? "text-[12px] sm:text-[14px]" : "text-[16px]"}`}
                         animate={{ opacity: isBlindGap ? 0 : 1, y: isBlindGap ? 3 : 0 }}
-                        transition={{ duration: reduceMotion ? 0.12 : 0.48, ease: "easeInOut" }}
+                        transition={{
+                          duration: labelSwapDuration,
+                          ease: storyBlend && !reduceMotion ? ([0.22, 1, 0.36, 1] as const) : "easeInOut",
+                        }}
                       >
                         {layer.label}
                       </motion.text>
@@ -418,7 +443,10 @@ export function AnimatedPyramid({
                         textAnchor="middle"
                         className={`pointer-events-none select-none fill-white font-semibold ${compact ? "text-[14px] sm:text-[16px]" : "text-[18px]"}`}
                         animate={{ opacity: isBlindGap ? 1 : 0, y: isBlindGap ? 0 : -3 }}
-                        transition={{ duration: reduceMotion ? 0.12 : 0.48, ease: "easeInOut" }}
+                        transition={{
+                          duration: labelSwapDuration,
+                          ease: storyBlend && !reduceMotion ? ([0.22, 1, 0.36, 1] as const) : "easeInOut",
+                        }}
                       >
                         ?
                       </motion.text>
